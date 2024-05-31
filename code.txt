@@ -1,0 +1,28 @@
+function extractHyperlinks() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = sheet.getRange('B98:B'); // Change 'A1:A' to your range
+  var values = range.getValues();
+  for (var i = 0; i < values.length; i++) {
+    var cell = range.getCell(i + 1, 1);
+    var formula = cell.getFormula();
+    if (formula) {
+      var match = formula.match(/HYPERLINK\("([^"]+)"[^)]*\)/);
+      if (match) {
+        sheet.getRange(i + 98, 2).setValue(match[1]); // Extract to column B
+      }
+    } else {
+      var richTextValue = cell.getRichTextValue();
+      if (richTextValue) {
+        var runs = richTextValue.getRuns();
+        for (var j = 0; j < runs.length; j++) {
+          var run = runs[j];
+          var url = run.getLinkUrl();
+          if (url) {
+            sheet.getRange(i + 98, 2).setValue(url); // Extract to column B
+            break;
+          }
+        }
+      }
+    }
+  }
+}
